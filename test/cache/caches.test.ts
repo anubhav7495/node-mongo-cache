@@ -1,7 +1,6 @@
 import app from '../../app';
 import supertest from 'supertest';
 import { expect } from 'chai';
-import shortid from 'shortid';
 import mongoose from 'mongoose';
 
 let firstKey = 'test-key-1';
