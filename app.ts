@@ -43,7 +43,7 @@ app.use(expressWinston.logger(loggerOptions));
 // this is a simple route to make sure everything is working properly
 const runningMessage = `Server running at http://${host}:${port}`;
 app.get('/health', (req: express.Request, res: express.Response) => {
-    res.status(200).send(runningMessage)
+    res.status(200).send("I am alive and kicking. May the force be with you!!")
 });
 
 server.listen(port, () => {
