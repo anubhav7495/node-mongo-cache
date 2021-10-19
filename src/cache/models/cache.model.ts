@@ -10,13 +10,14 @@ class CachesModel {
   Cache;
 
   constructor() {
+    const cacheKeyTtl = Number(process.env.CACHEKEYTTL) || 3600
     this.cachesSchema = new this.Schema({
       _id: String,
       key: String,
       value: String
     }, { id: false, timestamps: true });
 
-    this.cachesSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 60 })
+    this.cachesSchema.index({ updatedAt: 1 }, { expireAfterSeconds: cacheKeyTtl })
 
     // Update updatedAt on every findOne to reset the expires TTL
     this.cachesSchema.post('findOne', function(result) {
