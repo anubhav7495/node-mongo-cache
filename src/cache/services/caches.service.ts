@@ -14,7 +14,8 @@ class CachesService implements CRUD {
   }
 
   async list(limit: number, page: number) {
-    return CacheModel.getKeys(limit, page);
+    const cache = await CacheModel.getKeys(limit, page);
+    return Promise.resolve(cache.map(c => c.key));
   }
   
   async readByKey(key: string) {
@@ -22,12 +23,12 @@ class CachesService implements CRUD {
 
     if (cache) {
       logger.info('Cache Hit')
-      return Promise.resolve(cache);
+      return Promise.resolve(cache.value);
     } else {
       logger.info('Cache Miss')
       const value = randomString.generate(12);
       const newCache = await this.create(key, value);
-      return Promise.resolve(newCache);
+      return Promise.resolve(newCache.value);
     }
   }
   
