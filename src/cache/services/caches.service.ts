@@ -5,6 +5,7 @@ import logger from '../../logger';
 
 class CachesService implements CRUD {
   async create(key: string, value: string) {
+    await this.deleteLRUEntry()
     return CacheModel.addKey(key, value)
   }
 
@@ -31,11 +32,23 @@ class CachesService implements CRUD {
   }
   
   async putByKey(key: string, value: string) {
+    await this.deleteLRUEntry()
     return CacheModel.updateByKey(key, value)
   }
 
   async delete() {
     return CacheModel.removeAll()
+  }
+
+  // Deletes the Least Recently Used Entry
+  // Each entry has an updatedAt field which is changed on each findOne or Update operation
+  // If the length on keys is more than the limit, we delete the first entry
+  // sorted in ascending order by udpatedAt, effectively deleting the least recenly read or updated key
+  async deleteLRUEntry() {
+    const list = await CacheModel.getKeysSortedByUpdateAt();
+    if (list.length >= (Number(process.env.CACHELIMIT) || 25)) {
+      await this.deleteByKey(list[0].key);
+    }
   }
 }
 
