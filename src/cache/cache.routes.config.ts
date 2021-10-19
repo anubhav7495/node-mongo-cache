@@ -1,6 +1,8 @@
+import express from 'express';
+import { body } from 'express-validator';
 import { CommonRoutesConfig } from "../common/common.routes.config";
 import CachesController from './controllers/caches.controller';
-import express from 'express';
+import BodyValidationMiddleware from "../common/middleware/body.validation.middleware";
 
 export class CacheRoutes extends CommonRoutesConfig {
   constructor(app: express.Application) {
@@ -15,7 +17,11 @@ export class CacheRoutes extends CommonRoutesConfig {
     this.app
       .route(`/caches/:key`)
       .get(CachesController.getByKey)
-      .put(CachesController.putKey)
+      .put([
+        body('value').isString(),
+        BodyValidationMiddleware.verifyBodyFieldErrors,
+        CachesController.putKey
+      ])
       .delete(CachesController.removeKey);
 
     return this.app;
