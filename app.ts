@@ -9,9 +9,15 @@ import * as http from 'http';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
 import cors from 'cors';
+import debug from 'debug';
+
+import { CommonRoutesConfig } from './src/common/common.routes.config';
+import { CacheRoutes } from './src/cache/cache.routes.config';
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);
+const routes: Array<CommonRoutesConfig> = [];
+const debugLog: debug.IDebugger = debug('app');
 
 const port = process.env.PORT || 3000
 const host = process.env.HOST || 'localhost'
@@ -40,12 +46,19 @@ if (!process.env.DEBUG) {
 // initialize the logger with the above configuration
 app.use(expressWinston.logger(loggerOptions));
 
+// here we are adding the CacheRoutes to our array,
+// after sending the Express.js application object to have the routes added to our app!
+routes.push(new CacheRoutes(app));
+
 // this is a simple route to make sure everything is working properly
 const runningMessage = `Server running at http://${host}:${port}`;
-app.get('/health', (req: express.Request, res: express.Response) => {
-    res.status(200).send("I am alive and kicking. May the force be with you!!")
+app.get('/', (req: express.Request, res: express.Response) => {
+    res.status(200).send(runningMessage)
 });
 
 server.listen(port, () => {
+    routes.forEach((route: CommonRoutesConfig) => {
+        debugLog(`Routes configured for ${route.getName()}`);
+    });
     console.log(runningMessage);
 });
